@@ -11,9 +11,6 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-type example struct {
-}
-
 type RoutineRecord struct {
 	ID, Duration         int
 	Date, Category, Meal string
