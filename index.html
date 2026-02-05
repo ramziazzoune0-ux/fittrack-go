@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>FitTrack - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1" rel="stylesheet"/>
+    <script>
+        tailwind.config = { darkMode: "class", theme: { extend: { colors: { "primary": "#137fec", "background-dark": "#0a0a0a", "card-dark": "#161b22", "border-dark": "#21262d" } } } }
+    </script>
+</head>
+<body class="bg-background-dark text-slate-100 font-sans min-h-screen">
+<div class="flex h-screen overflow-hidden">
+    <aside class="w-64 border-r border-border-dark p-8 flex flex-col">
+        <h1 class="text-xl font-bold flex items-center gap-2 mb-10 text-white"><span class="material-symbols-outlined text-primary">monitoring</span>FitTrack</h1>
+        <nav class="space-y-2 flex-1">
+            <a href="/" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary/10 text-primary font-bold"><span class="material-symbols-outlined">grid_view</span>Dashboard</a>
+            <a href="/progress" class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-card-dark transition-colors"><span class="material-symbols-outlined">analytics</span>Activity Progress</a>
+            <a href="/workouts" class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-card-dark transition-colors"><span class="material-symbols-outlined">settings</span>Workouts</a>
+        </nav>
+    </aside>
+    <main class="flex-1 p-12 overflow-y-auto">
+        <div class="flex justify-between items-center mb-10">
+            <h2 class="text-3xl font-black">Dashboard</h2>
+            <button onclick="toggleM()" class="bg-primary px-6 py-3 rounded-xl font-bold text-white shadow-lg shadow-primary/20">Log Workout</button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div class="bg-card-dark p-6 rounded-2xl border border-border-dark flex items-center gap-4">
+                <span class="material-symbols-outlined text-primary">calendar_today</span>
+                <div><p class="text-xs text-slate-500 font-bold uppercase">Sessions</p><h4 class="text-2xl font-black">{{.Stats.TotalWorkouts}}</h4></div>
+            </div>
+            <div class="bg-card-dark p-6 rounded-2xl border border-border-dark flex items-center gap-4">
+                <span class="material-symbols-outlined text-emerald-500">timer</span>
+                <div><p class="text-xs text-slate-500 font-bold uppercase">Minutes</p><h4 class="text-2xl font-black">{{.Stats.TotalMinutes}}m</h4></div>
+            </div>
+            <div class="bg-card-dark p-6 rounded-2xl border border-border-dark flex items-center gap-4">
+                <span class="material-symbols-outlined text-orange-500">fitness_center</span>
+                <div><p class="text-xs text-slate-500 font-bold uppercase">Top Rank</p><h4 class="text-2xl font-black">{{.Stats.MostTrained}}</h4></div>
+            </div>
+        </div>
+        <div class="bg-card-dark rounded-2xl border border-border-dark overflow-hidden">
+            <table class="w-full text-left">
+                <thead class="bg-black/20 border-b border-border-dark">
+                    <tr>
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Date</th>
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Workout</th>
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Meal</th>
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border-dark">
+                    {{range .History}}
+                    <tr class="hover:bg-white/5 transition-colors">
+                        <td class="px-6 py-4 text-sm">{{.Date}}</td>
+                        <td class="px-6 py-4 font-bold">{{.Category}} ({{.Duration}}m)</td>
+                        <td class="px-6 py-4 text-emerald-400 text-sm italic">{{.Meal}}</td>
+                        <td class="px-6 py-4 text-right">
+                            <button onclick="editH('{{.ID}}','{{.Date}}','{{.Category}}','{{.Duration}}','{{.Meal}}')" class="text-slate-500 hover:text-primary mr-3"><span class="material-symbols-outlined">edit</span></button>
+                            <a href="/delete-history?id={{.ID}}" class="text-slate-500 hover:text-red-500"><span class="material-symbols-outlined">delete</span></a>
+                        </td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+<div id="modal" class="fixed inset-0 bg-black/80 hidden items-center justify-center p-4 z-50">
+    <div class="bg-card-dark w-full max-w-md rounded-2xl border border-border-dark p-8">
+        <h3 id="modalT" class="text-xl font-bold mb-6">Log Workout</h3>
+        <form action="/save" method="POST" class="space-y-4">
+            <input type="hidden" name="id" id="hId">
+            <input type="date" name="date" id="hDate" required class="w-full bg-background-dark border-border-dark rounded-lg text-white">
+            <select name="category" id="hCat" class="w-full bg-background-dark border-border-dark rounded-lg text-white">
+                {{range .CatNames}}<option value="{{.}}">{{.}}</option>{{end}}
+            </select>
+            <input type="number" name="duration" id="hDur" placeholder="Duration (min)" required class="w-full bg-background-dark border-border-dark rounded-lg text-white">
+            <input type="text" name="meal" id="hMeal" placeholder="Post-workout meal" required class="w-full bg-background-dark border-border-dark rounded-lg text-white">
+            <div class="flex gap-2 pt-4">
+                <button type="button" onclick="toggleM()" class="flex-1 py-3 bg-slate-800 rounded-lg">Cancel</button>
+                <button type="submit" class="flex-1 py-3 bg-primary rounded-lg font-bold">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    function toggleM() { document.getElementById('hId').value=''; document.getElementById('modal').classList.toggle('hidden'); document.getElementById('modal').classList.toggle('flex'); }
+    function editH(id, d, c, t, m) {
+        document.getElementById('hId').value = id; document.getElementById('hDate').value = d;
+        document.getElementById('hCat').value = c; document.getElementById('hDur').value = t;
+        document.getElementById('hMeal').value = m; document.getElementById('modalT').innerText = "Edit Workout";
+        document.getElementById('modal').classList.remove('hidden'); document.getElementById('modal').classList.add('flex');
+    }
+</script>
+</body>
+</html>

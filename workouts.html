@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>FitTrack - Workouts</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1" rel="stylesheet"/>
+    <script>
+        tailwind.config = { darkMode: "class", theme: { extend: { colors: { "primary": "#137fec", "background-dark": "#0a0a0a", "card-dark": "#161b22", "border-dark": "#21262d" } } } }
+    </script>
+</head>
+<body class="bg-background-dark text-slate-100 font-sans min-h-screen">
+<div class="flex h-screen overflow-hidden">
+    <aside class="w-64 border-r border-border-dark p-8 flex flex-col">
+        <h1 class="text-xl font-bold flex items-center gap-2 mb-10 text-white"><span class="material-symbols-outlined text-primary">monitoring</span>FitTrack</h1>
+        <nav class="space-y-2 flex-1">
+            <a href="/" class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-card-dark transition-colors"><span class="material-symbols-outlined">grid_view</span>Dashboard</a>
+            <a href="/progress" class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-card-dark transition-colors"><span class="material-symbols-outlined">analytics</span>Activity Progress</a>
+            <a href="/workouts" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary/10 text-primary font-bold"><span class="material-symbols-outlined">settings</span>Workouts</a>
+        </nav>
+    </aside>
+    <main class="flex-1 p-12 max-w-4xl mx-auto overflow-y-auto">
+        <div class="flex justify-between items-center mb-10">
+            <h2 class="text-3xl font-black">Workout Categories</h2>
+            <button onclick="openM()" class="bg-primary px-5 py-2.5 rounded-lg text-sm font-bold shadow-lg shadow-primary/20">+ New Category</button>
+        </div>
+        <div class="bg-card-dark rounded-xl border border-border-dark overflow-hidden">
+            <table class="w-full text-left">
+                <tbody class="divide-y divide-border-dark">
+                    {{range .Categories}}
+                    <tr class="hover:bg-white/5 transition-colors">
+                        <td class="px-6 py-4 font-bold">{{.Name}}</td>
+                        <td class="px-6 py-4 text-right">
+                            <button onclick="editC('{{.ID}}', '{{.Name}}')" class="text-slate-400 hover:text-primary mr-4"><span class="material-symbols-outlined">edit</span></button>
+                            <a href="/workouts/delete?id={{.ID}}" class="text-slate-400 hover:text-red-500"><span class="material-symbols-outlined">delete</span></a>
+                        </td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+<div id="m" class="fixed inset-0 bg-black/80 hidden items-center justify-center p-4">
+    <div class="bg-card-dark w-full max-w-sm rounded-2xl border border-border-dark p-6">
+        <h3 id="mT" class="text-lg font-bold mb-4">Edit Category</h3>
+        <form action="/workouts/save" method="POST" class="space-y-4">
+            <input type="hidden" name="id" id="cId">
+            <input type="text" name="name" id="cName" required class="w-full bg-background-dark border-border-dark rounded-lg text-white">
+            <div class="flex gap-2">
+                <button type="button" onclick="closeM()" class="flex-1 py-2 bg-slate-800 rounded-lg">Cancel</button>
+                <button type="submit" class="flex-1 py-2 bg-primary rounded-lg font-bold">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    function openM() { document.getElementById('cId').value=''; document.getElementById('m').classList.replace('hidden','flex'); }
+    function editC(id, n) { document.getElementById('cId').value=id; document.getElementById('cName').value=n; document.getElementById('m').classList.replace('hidden','flex'); }
+    function closeM() { document.getElementById('m').classList.replace('flex','hidden'); }
+</script>
+</body>
+</html>
