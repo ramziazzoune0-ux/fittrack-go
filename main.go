@@ -16,16 +16,6 @@ type RoutineRecord struct {
 	Date, Category, Meal string
 }
 
-type WorkoutCategory struct {
-	ID   int
-	Name string
-}
-
-type DashboardStats struct {
-	TotalWorkouts, TotalMinutes int
-	MostTrained                 string
-}
-
 type ProgressReport struct {
 	Score       int
 	Level       string
