@@ -76,7 +76,7 @@ func main() {
 	http.HandleFunc("/workouts/delete", handleDeleteCategory)
 	http.HandleFunc("/progress", handleProgress)
 
-	fmt.Println("🚀 Fit-Track running at http://127.0.0.1:3000")
+	fmt.Println("🚀 Fit-Track running at http://0.0.0.0:3000")
 	log.Fatal(http.ListenAndServe(":3000", nil))
 }
 
