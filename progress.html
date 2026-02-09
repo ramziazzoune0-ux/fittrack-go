@@ -1,26 +1,52 @@
 <!DOCTYPE html>
 <html class="dark" lang="en">
 <head>
-    <meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>FitTrack - Progress</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1" rel="stylesheet"/>
     <script>
-        tailwind.config = { darkMode: "class", theme: { extend: { colors: { "primary": "#137fec", "background-dark": "#0a0a0a", "card-dark": "#161b22", "border-dark": "#21262d" } } } }
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-dark": "#0a0a0a",
+                        "card-dark": "#161b22",
+                        "border-dark": "#21262d"
+                    }
+                }
+            }
+        }
     </script>
 </head>
 <body class="bg-background-dark text-slate-100 font-sans min-h-screen">
 <div class="flex h-screen overflow-hidden">
+    <!-- Sidebar -->
     <aside class="w-64 border-r border-border-dark p-8 flex flex-col bg-background-dark">
-        <h1 class="text-xl font-bold flex items-center gap-2 mb-10 text-white"><span class="material-symbols-outlined text-primary">monitoring</span>FitTrack</h1>
+        <h1 class="text-xl font-bold flex items-center gap-2 mb-10 text-white">
+            <span class="material-symbols-outlined text-primary">monitoring</span>FitTrack
+        </h1>
         <nav class="space-y-2 flex-1">
-            <a href="/" class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-card-dark transition-colors"><span class="material-symbols-outlined">grid_view</span>Dashboard</a>
-            <a href="/progress" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary/10 text-primary font-bold"><span class="material-symbols-outlined">analytics</span>Activity Progress</a>
-            <a href="/workouts" class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-card-dark transition-colors"><span class="material-symbols-outlined">settings</span>Workouts</a>
+            <a href="/" class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-card-dark transition-colors">
+                <span class="material-symbols-outlined">grid_view</span>Dashboard
+            </a>
+            <a href="/progress" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary/10 text-primary font-bold">
+                <span class="material-symbols-outlined">analytics</span>Activity Progress
+            </a>
+            <a href="/workouts" class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-card-dark transition-colors">
+                <span class="material-symbols-outlined">settings</span>Workouts
+            </a>
         </nav>
     </aside>
+
+    <!-- Main Content -->
     <main class="flex-1 p-12 overflow-y-auto max-w-5xl mx-auto">
         <h2 class="text-4xl font-black text-white mb-10">Weekly Summary</h2>
+
+        <!-- Score Card -->
         <div class="bg-card-dark p-10 rounded-3xl border border-border-dark flex items-center justify-between mb-10 shadow-2xl">
             <div>
                 <p class="text-primary font-bold uppercase tracking-widest text-xs">Level: {{.Progress.Level}}</p>
@@ -28,25 +54,37 @@
                 <p class="text-slate-500 mt-4 max-w-xs">Score based on workout consistency and meal quality.</p>
             </div>
             <div class="relative w-44 h-44">
-                <!-- SVG fixed to avoid IDE syntax errors -->
                 <svg class="w-full h-full" viewBox="0 0 36 36">
                     <circle cx="18" cy="18" r="16" fill="none" stroke="#21262d" stroke-width="3"></circle>
                     <circle cx="18" cy="18" r="16" fill="none" stroke="#137fec" stroke-width="3" stroke-dasharray="{{.Progress.Score}} 100" stroke-linecap="round"></circle>
                 </svg>
-                <div class="absolute inset-0 flex items-center justify-center"><span class="material-symbols-outlined text-5xl text-primary">bolt</span></div>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-5xl text-primary">bolt</span>
+                </div>
             </div>
         </div>
+
+        <!-- Details Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Meal Review -->
             <div class="bg-card-dark p-8 rounded-2xl border border-border-dark">
                 <p class="text-slate-500 font-bold text-xs uppercase mb-4">Meal Review</p>
                 <h4 class="text-3xl font-bold text-white">{{.Progress.FoodStatus}}</h4>
                 <p class="text-sm text-slate-500 mt-2">Rice, apples, and chicken boost your score.</p>
             </div>
+
+            <!-- Consistency (Fixed Progress Bar) -->
             <div class="bg-card-dark p-8 rounded-2xl border border-border-dark">
                 <p class="text-slate-500 font-bold text-xs uppercase mb-4">Consistency</p>
                 <h4 class="text-3xl font-bold text-white">{{.Stats.TotalWorkouts}} / 4 Sessions</h4>
-                <div class="w-full bg-border-dark h-2 rounded-full mt-4">
-                    <div class="bg-primary h-2 rounded-full" style="width: {{.Progress.Consistency}}%"></div>
+                
+                <!-- 
+                   Fix applied:
+                   1. Added 'overflow-hidden' to parent so the bar keeps rounded corners.
+                   2. Added 'max-w-full' to child so it never exceeds 100% width visually.
+                -->
+                <div class="w-full bg-border-dark h-2 rounded-full mt-4 overflow-hidden">
+                    <div class="bg-primary h-2 rounded-full max-w-full" style="width: {{.Progress.Consistency}}%"></div>
                 </div>
             </div>
         </div>
