@@ -10,168 +10,147 @@
     </script>
 </head>
 <body class="bg-background-dark text-slate-100 font-sans min-h-screen">
-<div class="flex h-screen overflow-hidden">
-    <aside class="w-64 border-r border-border-dark p-8 flex flex-col">
-        <h1 class="text-xl font-bold flex items-center gap-2 mb-10 text-white"><span class="material-symbols-outlined text-primary">monitoring</span>FitTrack</h1>
+
+<!-- Mobile Header -->
+<div class="md:hidden flex items-center justify-between p-4 border-b border-border-dark bg-background-dark sticky top-0 z-50">
+    <h1 class="text-xl font-bold flex items-center gap-2"><span class="material-symbols-outlined text-primary">monitoring</span>FitTrack</h1>
+    <button onclick="toggleSidebar()" class="text-white"><span class="material-symbols-outlined">menu</span></button>
+</div>
+
+<div class="flex h-screen overflow-hidden relative">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 border-r border-border-dark p-8 flex flex-col bg-background-dark transform -translate-x-full transition-transform duration-300 md:relative md:translate-x-0">
+        <div class="flex justify-between items-center mb-10 md:block">
+            <h1 class="text-xl font-bold flex items-center gap-2 text-white"><span class="material-symbols-outlined text-primary">monitoring</span>FitTrack</h1>
+            <button onclick="toggleSidebar()" class="md:hidden text-slate-400"><span class="material-symbols-outlined">close</span></button>
+        </div>
         <nav class="space-y-2 flex-1">
             <a href="/" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary/10 text-primary font-bold"><span class="material-symbols-outlined">grid_view</span>Dashboard</a>
             <a href="/progress" class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-card-dark transition-colors"><span class="material-symbols-outlined">analytics</span>Activity Progress</a>
             <a href="/workouts" class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-card-dark transition-colors"><span class="material-symbols-outlined">settings</span>Workouts</a>
         </nav>
     </aside>
-    <main class="flex-1 p-12 overflow-y-auto">
-        <div class="flex justify-between items-center mb-10">
-            <h2 class="text-3xl font-black">Dashboard</h2>
-            <button onclick="toggleM()" class="bg-primary px-6 py-3 rounded-xl font-bold text-white shadow-lg shadow-primary/20">Log Workout</button>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-4 md:p-12 overflow-y-auto w-full">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
+            <h2 class="text-2xl md:text-3xl font-black">Dashboard</h2>
+            <button onclick="toggleM()" class="w-full sm:w-auto bg-primary px-6 py-3 rounded-xl font-bold text-white shadow-lg shadow-primary/20">Log Workout</button>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-12">
             <div class="bg-card-dark p-6 rounded-2xl border border-border-dark flex items-center gap-4">
                 <span class="material-symbols-outlined text-primary">calendar_today</span>
-                <div><p class="text-xs text-slate-500 font-bold uppercase">Sessions</p><h4 class="text-2xl font-black">{{.Stats.TotalWorkouts}}</h4></div>
+                <div><p class="text-xs text-slate-500 font-bold uppercase tracking-tight">Sessions</p><h4 class="text-xl font-black">{{.Stats.TotalWorkouts}}</h4></div>
             </div>
             <div class="bg-card-dark p-6 rounded-2xl border border-border-dark flex items-center gap-4">
                 <span class="material-symbols-outlined text-emerald-500">timer</span>
-                <div><p class="text-xs text-slate-500 font-bold uppercase">Minutes</p><h4 class="text-2xl font-black">{{.Stats.TotalMinutes}}m</h4></div>
+                <div><p class="text-xs text-slate-500 font-bold uppercase tracking-tight">Minutes</p><h4 class="text-xl font-black">{{.Stats.TotalMinutes}}m</h4></div>
             </div>
             <div class="bg-card-dark p-6 rounded-2xl border border-border-dark flex items-center gap-4">
                 <span class="material-symbols-outlined text-orange-500">fitness_center</span>
-                <div><p class="text-xs text-slate-500 font-bold uppercase">Top Rank</p><h4 class="text-2xl font-black">{{.Stats.MostTrained}}</h4></div>
+                <div><p class="text-xs text-slate-500 font-bold uppercase tracking-tight">Top Rank</p><h4 class="text-xl font-black">{{.Stats.MostTrained}}</h4></div>
             </div>
         </div>
+
+        <!-- History Table -->
+        <h3 class="text-xl font-bold mb-4">Activity History</h3>
         <div class="bg-card-dark rounded-2xl border border-border-dark overflow-hidden">
-            <table class="w-full text-left">
-                <thead class="bg-black/20 border-b border-border-dark">
-                    <tr>
-                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Date</th>
-                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Workout</th>
-                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Meal</th>
-                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase text-right">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-border-dark">
-                    {{range .History}}
-                    <tr class="hover:bg-white/5 transition-colors">
-                        <td class="px-6 py-4 text-sm">{{.Date}}</td>
-                        <td class="px-6 py-4 font-bold">{{.Category}} ({{.Duration}}m)</td>
-                        <td class="px-6 py-4 text-emerald-400 text-sm italic">{{.Meal}}</td>
-                        <td class="px-6 py-4 text-right">
-                            <button onclick="editH('{{.ID}}','{{.Date}}','{{.Category}}','{{.Duration}}','{{.Meal}}')" class="text-slate-500 hover:text-primary mr-3"><span class="material-symbols-outlined">edit</span></button>
-                            <a href="/delete-history?id={{.ID}}" class="text-slate-500 hover:text-red-500"><span class="material-symbols-outlined">delete</span></a>
-                        </td>
-                    </tr>
-                    {{end}}
-                </tbody>
-            </table>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left min-w-[600px]">
+                    <thead class="bg-black/20 border-b border-border-dark">
+                        <tr>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Date</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Workout</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Meal</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-border-dark">
+                        {{range .History}}
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="px-6 py-4 text-sm">{{.Date}}</td>
+                            <td class="px-6 py-4 font-bold">{{.Category}} ({{.Duration}}m)</td>
+                            <td class="px-6 py-4 text-emerald-400 text-sm italic">{{.Meal}}</td>
+                            <td class="px-6 py-4 text-right whitespace-nowrap">
+                                <button onclick="editH('{{.ID}}','{{.Date}}','{{.Category}}','{{.Duration}}','{{.Meal}}')" class="text-slate-500 hover:text-primary mr-3"><span class="material-symbols-outlined">edit</span></button>
+                                <a href="/delete-history?id={{.ID}}" class="text-slate-500 hover:text-red-500"><span class="material-symbols-outlined">delete</span></a>
+                            </td>
+                        </tr>
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </main>
 </div>
-<div id="modal" class="fixed inset-0 bg-black/80 hidden items-center justify-center p-4 z-50">
-   <div class="bg-card-dark w-full max-w-md rounded-2xl border border-border-dark p-8 shadow-2xl relative overflow-hidden">
-    <!-- Header -->
-    <div class="flex items-center justify-between mb-8">
-        <h3 id="modalT" class="text-2xl font-bold text-white tracking-tight">Log Workout</h3>
-        <!-- Optional Close Icon could go here -->
+
+<!-- Modal -->
+<div id="modal" class="fixed inset-0 bg-black/80 hidden items-center justify-center p-4 z-[100] overflow-y-auto">
+   <div class="bg-card-dark w-full max-w-md rounded-2xl border border-border-dark p-6 md:p-8 shadow-2xl my-auto">
+    <div class="flex items-center justify-between mb-6">
+        <h3 id="modalT" class="text-xl font-bold text-white">Log Workout</h3>
+        <button onclick="toggleM()" class="text-slate-400"><span class="material-symbols-outlined">close</span></button>
     </div>
-
-    <form action="/save" method="POST" class="space-y-5">
+    <form action="/save" method="POST" class="space-y-4">
         <input type="hidden" name="id" id="hId">
-
-        <!-- 1. DATE (Moved to Top) -->
-        <div class="space-y-2">
-            <label for="hDate" class="text-sm font-medium text-gray-400 ml-1">Date</label>
-            <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                </div>
-                <!-- color-scheme: dark makes the calendar popup dark mode -->
-                <input type="date" name="date" id="hDate" required 
-                       style="color-scheme: dark;"
-                       class="w-full pl-10 pr-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200">
-            </div>
+        <div class="space-y-1">
+            <label class="text-xs text-slate-400 ml-1">Date</label>
+            <input type="date" name="date" id="hDate" required style="color-scheme: dark;" class="w-full p-3 bg-background-dark border border-border-dark rounded-xl text-white outline-none focus:ring-2 focus:ring-primary">
         </div>
-
-        <!-- 2. CATEGORY -->
-        <div class="space-y-2">
-            <label for="hCat" class="text-sm font-medium text-gray-400 ml-1">Workout Type</label>
-            <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                </div>
-                <select name="category" id="hCat" 
-                        class="w-full pl-10 pr-10 py-3 bg-background-dark border border-border-dark rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent appearance-none transition-all duration-200">
-                    {{range .CatNames}}<option value="{{.}}">{{.}}</option>{{end}}
-                </select>
-                <!-- Custom Arrow for Select -->
-                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <svg class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                </div>
-            </div>
+        <div class="space-y-1">
+            <label class="text-xs text-slate-400 ml-1">Workout Type</label>
+            <select name="category" id="hCat" class="w-full p-3 bg-background-dark border border-border-dark rounded-xl text-white outline-none focus:ring-2 focus:ring-primary">
+                {{range .CatNames}}<option value="{{.}}">{{.}}</option>{{end}}
+            </select>
         </div>
-
-        <!-- 3. DURATION -->
-        <div class="space-y-2">
-            <label for="hDur" class="text-sm font-medium text-gray-400 ml-1">Duration</label>
-            <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <input type="number" name="duration" id="hDur" placeholder="Minutes" required 
-                       class="w-full pl-10 pr-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200">
-            </div>
+        <div class="space-y-1">
+            <label class="text-xs text-slate-400 ml-1">Duration (min)</label>
+            <input type="number" name="duration" id="hDur" required class="w-full p-3 bg-background-dark border border-border-dark rounded-xl text-white outline-none focus:ring-2 focus:ring-primary">
         </div>
-
-        <!-- 4. MEAL -->
-        <div class="space-y-2">
-            <label for="hMeal" class="text-sm font-medium text-gray-400 ml-1">Post-workout Meal</label>
-            <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                </div>
-                <input type="text" name="meal" id="hMeal" placeholder="e.g. Chicken & Rice" required 
-                       class="w-full pl-10 pr-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200">
-            </div>
+        <div class="space-y-1">
+            <label class="text-xs text-slate-400 ml-1">Post-workout Meal</label>
+            <input type="text" name="meal" id="hMeal" required class="w-full p-3 bg-background-dark border border-border-dark rounded-xl text-white outline-none focus:ring-2 focus:ring-primary">
         </div>
-
-        <!-- Buttons -->
-        <div class="flex gap-3 pt-6">
-            <button type="button" onclick="toggleM()" 
-                    class="flex-1 py-3 px-4 bg-slate-800 hover:bg-slate-700 text-gray-200 rounded-xl font-medium transition-colors duration-200">
-                Cancel
-            </button>
-            <button type="submit" 
-                    class="flex-1 py-3 px-4 bg-primary hover:bg-opacity-90 text-white rounded-xl font-bold shadow-lg shadow-primary/20 transition-all duration-200 transform hover:scale-[1.02]">
-                Save Log
-            </button>
+        <div class="flex gap-3 pt-4">
+            <button type="button" onclick="toggleM()" class="flex-1 py-3 bg-slate-800 text-white rounded-xl font-medium">Cancel</button>
+            <button type="submit" class="flex-1 py-3 bg-primary text-white rounded-xl font-bold shadow-lg">Save</button>
         </div>
     </form>
+   </div>
 </div>
-</div>
+
 <script>
-    function toggleM() { document.getElementById('hId').value=''; document.getElementById('modal').classList.toggle('hidden'); document.getElementById('modal').classList.toggle('flex'); }
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('-translate-x-full');
+    }
+    function toggleM() { 
+        document.getElementById('hId').value=''; 
+        document.getElementById('modal').classList.toggle('hidden'); 
+        document.getElementById('modal').classList.toggle('flex');
+        if (!document.getElementById('modal').classList.contains('hidden')) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'auto';
+        }
+    }
     function editH(id, d, c, t, m) {
-        document.getElementById('hId').value = id; document.getElementById('hDate').value = d;
-        document.getElementById('hCat').value = c; document.getElementById('hDur').value = t;
-        document.getElementById('hMeal').value = m; document.getElementById('modalT').innerText = "Edit Workout";
-        document.getElementById('modal').classList.remove('hidden'); document.getElementById('modal').classList.add('flex');
-     
+        document.getElementById('hId').value = id; 
+        document.getElementById('hDate').value = d;
+        document.getElementById('hCat').value = c; 
+        document.getElementById('hDur').value = t;
+        document.getElementById('hMeal').value = m; 
+        document.getElementById('modalT').innerText = "Edit Workout";
+        document.getElementById('modal').classList.remove('hidden'); 
+        document.getElementById('modal').classList.add('flex');
+        document.body.style.overflow = 'hidden';
     }
-    document.addEventListener('DOMContentLoaded', (event) => {
-    // Set default date to today
-    const dateInput = document.getElementById('hDate');
-    if(dateInput && !dateInput.value) {
-        dateInput.valueAsDate = new Date();
-    }
-});
+    document.addEventListener('DOMContentLoaded', () => {
+        const dateInput = document.getElementById('hDate');
+        if(dateInput && !dateInput.value) dateInput.valueAsDate = new Date();
+    });
 </script>
 </body>
 </html>

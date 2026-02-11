@@ -43,7 +43,6 @@ type PageData struct {
 
 var db *sql.DB
 
-// Logic functions
 func getStats() DashboardStats {
 	var s DashboardStats
 	db.QueryRow(`SELECT COUNT(*) FROM daily_routine WHERE date(workout_date) >= date('now', '-7 days')`).Scan(&s.TotalWorkouts)
@@ -63,11 +62,9 @@ func main() {
 	}
 	defer db.Close()
 
-	// Initialize Tables
 	db.Exec(`CREATE TABLE IF NOT EXISTS workout_category (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE);`)
 	db.Exec(`CREATE TABLE IF NOT EXISTS daily_routine (id INTEGER PRIMARY KEY AUTOINCREMENT, workout_date TEXT, category TEXT, duration INTEGER, meal TEXT);`)
 
-	// Routes
 	http.HandleFunc("/", handleDashboard)
 	http.HandleFunc("/save", handleSaveRoutine)
 	http.HandleFunc("/delete-history", handleDeleteHistory)
@@ -76,7 +73,7 @@ func main() {
 	http.HandleFunc("/workouts/delete", handleDeleteCategory)
 	http.HandleFunc("/progress", handleProgress)
 
-	fmt.Println("🚀 Fit-Track running at http://0.0.0.0:3000")
+	fmt.Println("🚀 Fit-Track running at http://127.0.0.1:3000")
 	log.Fatal(http.ListenAndServe(":3000", nil))
 }
 
@@ -123,7 +120,6 @@ func getProgressReport() ProgressReport {
 	return ProgressReport{Score: score, Level: lvl, FoodStatus: foodStatus, Consistency: (stats.TotalWorkouts * 100) / 4}
 }
 
-// Handlers
 func handleDashboard(w http.ResponseWriter, r *http.Request) {
 	rows, _ := db.Query("SELECT name FROM workout_category")
 	var names []string
@@ -162,13 +158,15 @@ func handleWorkouts(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleSaveRoutine(w http.ResponseWriter, r *http.Request) {
-	id := r.FormValue("id")
-	if id == "" {
-		db.Exec(`INSERT INTO daily_routine (workout_date, category, duration, meal) VALUES (?, ?, ?, ?)`,
-			r.FormValue("date"), r.FormValue("category"), r.FormValue("duration"), r.FormValue("meal"))
-	} else {
-		db.Exec(`UPDATE daily_routine SET workout_date=?, category=?, duration=?, meal=? WHERE id=?`,
-			r.FormValue("date"), r.FormValue("category"), r.FormValue("duration"), r.FormValue("meal"), id)
+	if r.Method == http.MethodPost {
+		id := r.FormValue("id")
+		if id == "" {
+			db.Exec(`INSERT INTO daily_routine (workout_date, category, duration, meal) VALUES (?, ?, ?, ?)`,
+				r.FormValue("date"), r.FormValue("category"), r.FormValue("duration"), r.FormValue("meal"))
+		} else {
+			db.Exec(`UPDATE daily_routine SET workout_date=?, category=?, duration=?, meal=? WHERE id=?`,
+				r.FormValue("date"), r.FormValue("category"), r.FormValue("duration"), r.FormValue("meal"), id)
+		}
 	}
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
@@ -179,11 +177,13 @@ func handleDeleteHistory(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleSaveCategory(w http.ResponseWriter, r *http.Request) {
-	id, name := r.FormValue("id"), r.FormValue("name")
-	if id == "" {
-		db.Exec("INSERT INTO workout_category (name) VALUES (?)", name)
-	} else {
-		db.Exec("UPDATE workout_category SET name = ? WHERE id = ?", name, id)
+	if r.Method == http.MethodPost {
+		id, name := r.FormValue("id"), r.FormValue("name")
+		if id == "" {
+			db.Exec("INSERT INTO workout_category (name) VALUES (?)", name)
+		} else {
+			db.Exec("UPDATE workout_category SET name = ? WHERE id = ?", name, id)
+		}
 	}
 	http.Redirect(w, r, "/workouts", http.StatusSeeOther)
 }
